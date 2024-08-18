@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image
 
-valid_file_formats = ["jpeg", "JPEG", "jpg", "JPG", "png", "PNG"]
+valid_file_formats = [".jpeg", ".JPEG", ".jpg", ".JPG", ".png", ".PNG"]
 
 
 def load_image_filenames(images_root_path: Path) -> list:
