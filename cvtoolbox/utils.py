@@ -1,5 +1,5 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 from PIL import Image
 
@@ -10,7 +10,7 @@ def load_image_filenames(images_root_path: Path) -> list:
     all_filenames_in_directory = [name for name in images_root_path.iterdir()]
     image_filenames_in_directory = []
     for name in all_filenames_in_directory:
-        if name.name.split(".")[-1] in valid_file_formats:
+        if name.suffix in valid_file_formats:
             image_filenames_in_directory.append(name)
     return image_filenames_in_directory
 
