@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from PIL import Image
 
@@ -17,3 +18,9 @@ def load_image_filenames(images_root_path: Path) -> list:
 def load_image_files(image_filenames):
     loaded_images = [Image.open(image_path) for image_path in image_filenames]
     return loaded_images
+
+
+def load_json_file(file_path):
+    with open(file_path, "r") as file:
+        json_file = json.load(file)
+    return json_file
