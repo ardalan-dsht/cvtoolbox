@@ -1,7 +1,19 @@
-import gradio as gr
-from pycocotools import COCO
+from pycocotools.coco import COCO
+from ultralytics.data.converter import convert_coco
 
-from .utils import *
+from .data import colors
+from .io import *
+from .visualize import visualize_bounding_box
+
+
+def convert_coco_to_yolo_for_object_detection(coco_path, yolo_path):
+    convert_coco(
+        coco_path,
+        yolo_path,
+        use_keypoints=False,
+        use_segments=False,
+        cls91to80=False,
+    )
 
 
 class CocoDataset:
@@ -13,27 +25,16 @@ class CocoDataset:
         for category in annotations["categories"]:
             self.category_id_to_name[category["id"]] = category["name"]
 
-    def visualize(self):
-        def show_image(image_id):
-            image_file_info = self.coco.loadImgs(image_id)[0]
-            image_file_path = self.image_files_root_path / image_file_info["filename"]
-            image = Image.open(image_file_path)
-            all_annotation_ids_for_image = self.coco.getAnnIds(image_id)
-            all_annotations_for_image = self.coco.loadAnns(all_annotation_ids_for_image)
-            annotations_for_image = []
-            for annotation in all_annotations_for_image:
-                bbox = annotation["bbox"]
-                category_id = annotation["category_id"]
-                category = self.category_id_to_name[category_id]
-                annotation = (bbox, category)
-                annotations_for_image.append(annotation)
-            return image, annotations_for_image
-
-        with gr.Blocks() as demo:
-            with gr.Row():
-                gradio_image = gr.AnnotatedImage(label="Annotations", show_legend=True)
-            with gr.Row():
-                selected_image_index = gr.Textbox()
-            with gr.Row():
-                button = gr.Button("Show")
-            button.click(show_image, inputs=selected_image_index, outputs=gradio_image)
+    def visualize_bbox(self, image_id):
+        coco_image = self.coco.loadImgs(image_id)[0]
+        image_file_path = self.image_files_root_path / coco_image["file_name"]
+        image = Image.open(image_file_path)
+        annotations = []
+        pycocotools_annotation_ids = self.coco.getAnnIds(imgIds=image_id)
+        pycocotools_annotations = self.coco.loadAnns(pycocotools_annotation_ids)
+        for ann in pycocotools_annotations:
+            bbox = ann["bbox"]
+            category = self.coco.loadCats(ann["category_id"])[0]["name"]
+            annotations.append((category, bbox))
+        image_with_bounding_boxes = visualize_bounding_box(image, annotations, colors)
+        return image_with_bounding_boxes
