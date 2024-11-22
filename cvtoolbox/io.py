@@ -44,11 +44,28 @@ def load_json_filenames(jsons_root_path: Path) -> list:
             json_filenames_in_directory.append(name)
     return json_filenames_in_directory
 
+def load_filenames_with_format(root_path: Path, file_format: str) -> list:
+    all_filenames_in_directory = [name for name in root_path.iterdir()]
+    json_filenames_in_directory = []
+    for name in all_filenames_in_directory:
+        if name.suffix == file_format:
+            json_filenames_in_directory.append(name)
+    return json_filenames_in_directory
+
 
 def load_json_file(file_path):
     with open(file_path, "r") as file:
         json_file = json.load(file)
     return json_file
+
+
+def load_json_files_from_directory(root_directory: Path) -> list:
+    all_loaded_json_files = []
+    all_json_file_paths_in_directory = load_json_filenames(root_directory)
+    for file_path in all_json_file_paths_in_directory:
+        json_file = load_json_file(file_path)
+        all_loaded_json_files.append(json_file)
+    return all_loaded_json_files
 
 
 def load_yaml_file_into_json(file_path):
